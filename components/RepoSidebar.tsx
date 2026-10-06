@@ -3,6 +3,24 @@
 import { useRef, useState } from "react";
 import type { RepoSummary } from "./types";
 
+/** commit-graph mark used in the sidebar header */
+const LogoMark = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    className={className}
+  >
+    <circle cx="6" cy="6" r="2.2" />
+    <circle cx="6" cy="18" r="2.2" />
+    <circle cx="18" cy="12" r="2.2" />
+    <path d="M6 8.2v7.6" />
+    <path d="M8.2 6h1.3c3.5 0 5.3 6 6.3 6" />
+  </svg>
+);
+
 const statusChip = (r: RepoSummary) => {
   if (r.status === "ready") return <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">ready</span>;
   if (r.status === "error") return <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-medium text-rose-400">error</span>;
@@ -68,9 +86,14 @@ export default function RepoSidebar({
 
   return (
     <aside className="flex w-72 shrink-0 flex-col border-r border-neutral-800 bg-neutral-950">
-      <div className="border-b border-neutral-800 px-4 py-4">
-        <h1 className="text-lg font-semibold tracking-tight">RAT</h1>
-        <p className="text-xs text-neutral-500">Repository Analysis Tool</p>
+      <div className="flex items-center gap-2.5 border-b border-neutral-800 px-4 py-3.5">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/30">
+          <LogoMark className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-lg font-semibold leading-none tracking-tight">RAT</h1>
+          <p className="mt-1 truncate text-[11px] text-neutral-500">Repository Analysis Tool</p>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
@@ -84,7 +107,7 @@ export default function RepoSidebar({
             key={r.id}
             onClick={() => onSelect(r.id)}
             className={`group cursor-pointer rounded-lg px-3 py-2.5 ${
-              r.id === selectedId ? "bg-neutral-800/80" : "hover:bg-neutral-900"
+              r.id === selectedId ? "bg-neutral-800/80 ring-1 ring-neutral-700" : "hover:bg-neutral-900"
             }`}
           >
             <div className="flex items-center justify-between gap-2">

@@ -70,7 +70,7 @@ export async function getRepo(id: string): Promise<RepoEntry | undefined> {
 async function updateEntry(id: string, patch: Partial<RepoEntry>): Promise<RepoEntry | undefined> {
   return mutateRepos((repos) => {
     const e = repos.find((r) => r.id === id);
-    if (e) for (const [k, v] of Object.entries(patch)) (e as Record<string, unknown>)[k] = v;
+    if (e) Object.assign(e, patch);
     return e;
   });
 }

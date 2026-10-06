@@ -3,6 +3,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import CommitPicker from "@/components/CommitPicker";
 import FilterBar from "@/components/FilterBar";
+import MergeAuthorsDialog from "@/components/MergeAuthorsDialog";
 import MetricsPanel from "@/components/MetricsPanel";
 import RepoSidebar from "@/components/RepoSidebar";
 import type { AuthorsResponse, FiltersState, MetricsResponse, RepoSummary } from "@/components/types";
@@ -23,6 +24,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   const loadRepos = useCallback(async () => {
     try {
@@ -55,6 +58,7 @@ export default function Home() {
     setMetrics(null);
     setAuthors(null);
     setPickerOpen(false);
+    setMergeOpen(false);
   }, [repos, selectedId]);
 
   const selectRepo = (id: string) => {
@@ -65,13 +69,15 @@ export default function Home() {
     setMetrics(null);
     setAuthors(null);
     setPickerOpen(false);
+    setMergeOpen(false);
     setError(null);
   };
 
   const selected = repos.find((r) => r.id === selectedId) ?? null;
   const ready = selected?.status === "ready";
 
-  // author list depends only on the repo (it changes on ingest / merges)
+  // author list depends only on the repo (it changes on ingest / merges);
+  // refreshTick forces a re-fetch after the merge dialog saves
   useEffect(() => {
     if (!selectedId || !ready) return;
     let cancel = false;
@@ -86,7 +92,7 @@ export default function Home() {
     return () => {
       cancel = true;
     };
-  }, [selectedId, ready]);
+  }, [selectedId, ready, refreshTick]);
 
   // fetch metrics whenever repo / path / filters change
   useEffect(() => {
@@ -117,7 +123,7 @@ export default function Home() {
     return () => {
       cancel = true;
     };
-  }, [selectedId, ready, path, filters]);
+  }, [selectedId, ready, path, filters, refreshTick]);
 
   const crumbs = path
     ? path.split("/").map((seg, i, arr) => ({ seg, path: arr.slice(0, i + 1).join("/") }))
@@ -180,6 +186,7 @@ export default function Home() {
             filters={filters}
             onChange={setFilters}
             onOpenCommits={() => setPickerOpen(true)}
+            onOpenMerge={() => setMergeOpen(true)}
             onClear={() => setFilters({ author: null, commits: null })}
           />
         )}
@@ -252,6 +259,17 @@ export default function Home() {
             setPickerOpen(false);
           }}
           onClose={() => setPickerOpen(false)}
+        />
+      )}
+
+      {mergeOpen && selectedId && ready && (
+        <MergeAuthorsDialog
+          repoId={selectedId}
+          onClose={() => setMergeOpen(false)}
+          onMerged={() => {
+            setMergeOpen(false);
+            setRefreshTick((t) => t + 1);
+          }}
         />
       )}
     </div>

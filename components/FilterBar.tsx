@@ -34,12 +34,14 @@ export default function FilterBar({
   filters,
   onChange,
   onOpenCommits,
+  onOpenMerge,
   onClear,
 }: {
   authors: AuthorsResponse | null;
   filters: FiltersState;
   onChange: (f: FiltersState) => void;
   onOpenCommits: () => void;
+  onOpenMerge: () => void;
   onClear: () => void;
 }) {
   const now = Math.floor(Date.now() / 1000);
@@ -110,10 +112,18 @@ export default function FilterBar({
         {commitsCount > 0 ? `${commitsCount} commits selected` : "Pick commits…"}
       </button>
 
+      <button
+        className={`ml-auto ${chip(false)}`}
+        onClick={onOpenMerge}
+        title="merge author identities (e.g. several emails of the same person)"
+      >
+        Merge authors…
+      </button>
+
       {hasFilters && (
         <button
           onClick={onClear}
-          className="ml-auto rounded-md px-2 py-1 text-xs text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200"
+          className="rounded-md px-2 py-1 text-xs text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200"
         >
           Clear filters
         </button>
